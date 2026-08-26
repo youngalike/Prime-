@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-950: #0a1622;
+  --color-navy-900: #0d1b2a;
+  --color-navy-800: #13293f;
+  --color-navy-700: #1b3a52;
+  --color-navy-600: #274a66;
+
+  --color-gold-300: #f7dd8a;
+  --color-gold-400: #f2c94c;
+  --color-gold-500: #e0ac2b;
+
+  --color-ivory-50: #f5f3ee;
+  --color-ivory-300: #c9d1d9;
+
+  --animate-glow-pulse: glow-pulse 4s ease-in-out infinite;
+  --animate-float: float 6s ease-in-out infinite;
+}
+
+@theme inline {
+  --font-display: var(--font-playfair);
+  --font-sans: var(--font-inter);
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(242, 201, 76, 0.08), transparent),
+    var(--color-navy-900);
+  color: var(--color-ivory-50);
+}
+
+@layer components {
+  .glass-panel {
+    background: rgba(19, 41, 63, 0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(242, 201, 76, 0.14);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 24px rgba(242, 201, 76, 0.25);
+  }
+
+  .glow-gold-lg {
+    box-shadow: 0 0 60px rgba(242, 201, 76, 0.2);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 30px rgba(242, 201, 76, 0.35);
+  }
+
+  .grain-bg {
+    background-image: radial-gradient(rgba(245, 243, 238, 0.035) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+}
+
+::selection {
+  background: rgba(242, 201, 76, 0.35);
+  color: var(--color-ivory-50);
+}
+
+* {
+  scrollbar-color: var(--color-gold-500) var(--color-navy-900);
+}
