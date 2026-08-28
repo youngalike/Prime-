@@ -75,7 +75,7 @@ export function AdminLoginModal() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="w-full rounded-lg border border-gold-400/25 bg-surface/70 px-4 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 outline-none focus:border-gold-400/60 focus:shadow-[0_0_0_3px_rgba(var(--glow-rgb),0.12)]"
+                className="w-full rounded-lg border border-gold-400/25 bg-surface/70 px-4 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 outline-none focus:border-gold-400/60 focus:shadow-[0_0_0_3px_rgba(var(--glow-rgb),calc(0.12*var(--page-glow-intensity,1)))]"
               />
               {error && <p className="text-xs text-red-500">{error}</p>}
               <button

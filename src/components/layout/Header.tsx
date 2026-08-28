@@ -26,7 +26,16 @@ export function Header({ profile }: { profile: Profile }) {
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className="fixed inset-x-0 top-0 z-50 flex items-center justify-center px-6 py-5 sm:px-10"
     >
-      <div className="glass-pill flex items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-5 font-display text-sm text-gold-600">
+      <div
+        onClick={(e) => {
+          const target = e.target as HTMLElement;
+          if (target.closest("input, button, textarea")) return;
+          document.getElementById("home")?.scrollIntoView({ behavior: "smooth" });
+        }}
+        role="link"
+        aria-label="Go to top"
+        className="glass-pill flex cursor-pointer items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-5 font-display text-sm text-gold-600"
+      >
         <span
           className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full p-[2px]"
           style={{ boxShadow: `0 0 0 2px ${status.color}, 0 0 8px 1px ${status.glow}` }}

@@ -111,7 +111,11 @@ export function SettingsModal({
   const [generalOpacity, setGeneralOpacity] = useState(profile.background_opacity);
   const [googleFontInput, setGoogleFontInput] = useState(profile.google_font_name ?? "");
   const [bounceIntensity, setBounceIntensity] = useState(profile.bounce_intensity ?? 1);
+  const [photoGlowHexInput, setPhotoGlowHexInput] = useState(profile.photo_glow_hex ?? "");
+  const [photoGlowIntensity, setPhotoGlowIntensity] = useState(profile.photo_glow_intensity ?? 1);
+  const [pageGlowIntensity, setPageGlowIntensity] = useState(profile.page_glow_intensity ?? 1);
   const colorWheelRef = useRef<HTMLInputElement>(null);
+  const photoGlowWheelRef = useRef<HTMLInputElement>(null);
 
   async function setAccent(id: (typeof ACCENTS)[number]["id"]) {
     setSaving(id);
@@ -248,6 +252,71 @@ export function SettingsModal({
     }
   }
 
+  async function savePhotoGlowHex(hex: string) {
+    if (!isValidHex(hex)) {
+      toast.error("Enter a valid hex color, e.g. #3b82f6");
+      return;
+    }
+    setPhotoGlowHexInput(hex);
+    setSaving("photo-glow-hex");
+    try {
+      await updateProfile({ photo_glow_hex: hex });
+      toast.success("Saved");
+    } catch {
+      toast.error("Couldn't save glow color");
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  async function clearPhotoGlowColor() {
+    setPhotoGlowHexInput("");
+    setSaving("photo-glow-hex");
+    try {
+      await updateProfile({ photo_glow_hex: null });
+      toast.success("Saved");
+    } catch {
+      toast.error("Couldn't reset glow color");
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  // Same native-color-input commit pattern as the theme color wheel above —
+  // React's onChange fires continuously while dragging, so the save is
+  // committed on the native "change" event (fires once, on release).
+  useEffect(() => {
+    const el = photoGlowWheelRef.current;
+    if (!el) return;
+    const handleCommit = (e: Event) => {
+      savePhotoGlowHex((e.target as HTMLInputElement).value);
+    };
+    el.addEventListener("change", handleCommit);
+    return () => el.removeEventListener("change", handleCommit);
+  }, [open]);
+
+  async function applyPhotoGlowHex() {
+    await savePhotoGlowHex(photoGlowHexInput);
+  }
+
+  async function savePhotoGlowIntensity(v: number) {
+    setPhotoGlowIntensity(v);
+    try {
+      await updateProfile({ photo_glow_intensity: v });
+    } catch {
+      toast.error("Couldn't save glow intensity");
+    }
+  }
+
+  async function savePageGlowIntensity(v: number) {
+    setPageGlowIntensity(v);
+    try {
+      await updateProfile({ page_glow_intensity: v });
+    } catch {
+      toast.error("Couldn't save page glow intensity");
+    }
+  }
+
   async function saveGeneralOpacity(v: number) {
     setGeneralOpacity(v);
     try {
@@ -380,6 +449,88 @@ export function SettingsModal({
               </div>
 
               <div>
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-ink-400">
+                  Photo &amp; icon glow color
+                </p>
+                <p className="mb-3 text-[11px] text-ink-400">
+                  Overrides the glow color on the profile photo and floating icons only —
+                  everything else keeps the theme color below.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {ACCENTS.map((accent) => (
+                    <button
+                      key={accent.id}
+                      onClick={() => savePhotoGlowHex(accent.swatch)}
+                      disabled={saving === "photo-glow-hex"}
+                      aria-label={accent.label}
+                      title={accent.label}
+                      className="relative flex h-10 w-10 items-center justify-center rounded-full ring-2 ring-white/60 transition-transform hover:scale-110 disabled:opacity-50"
+                      style={{ backgroundColor: accent.swatch }}
+                    >
+                      {profile.photo_glow_hex?.toLowerCase() === accent.swatch.toLowerCase() && (
+                        <Check size={16} className="text-white drop-shadow" />
+                      )}
+                    </button>
+                  ))}
+                  <div className="relative h-10 w-10">
+                    <div
+                      aria-hidden
+                      className="pointer-events-none flex h-10 w-10 items-center justify-center rounded-full ring-2 ring-white/60"
+                      style={{
+                        background: profile.photo_glow_hex || "conic-gradient(from 0deg, red, yellow, lime, cyan, blue, magenta, red)",
+                      }}
+                    >
+                      {profile.photo_glow_hex && <Check size={16} className="text-white drop-shadow" />}
+                    </div>
+                    <input
+                      ref={photoGlowWheelRef}
+                      type="color"
+                      defaultValue={isValidHex(profile.photo_glow_hex ?? "") ? profile.photo_glow_hex! : "#f2c94c"}
+                      onChange={(e) => setPhotoGlowHexInput(e.target.value)}
+                      aria-label="Pick a custom glow color"
+                      title="Custom color"
+                      className="absolute inset-0 h-10 w-10 cursor-pointer opacity-0"
+                    />
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <input
+                    value={photoGlowHexInput}
+                    onChange={(e) => setPhotoGlowHexInput(e.target.value)}
+                    placeholder="#3b82f6"
+                    maxLength={7}
+                    className="w-28 rounded-lg border border-gold-400/25 bg-surface/70 px-3 py-1.5 font-mono text-xs text-ink-900 outline-none focus:border-gold-400/60"
+                  />
+                  <button
+                    onClick={applyPhotoGlowHex}
+                    disabled={saving === "photo-glow-hex" || !photoGlowHexInput}
+                    className="rounded-lg bg-gold-400 px-3 py-1.5 text-xs font-medium text-navy-950 disabled:opacity-50"
+                  >
+                    Use hex
+                  </button>
+                  {profile.photo_glow_hex && (
+                    <button
+                      onClick={clearPhotoGlowColor}
+                      disabled={saving === "photo-glow-hex"}
+                      className="rounded-lg border border-gold-400/25 px-3 py-1.5 text-xs text-ink-700 hover:border-gold-400/40 disabled:opacity-50"
+                    >
+                      Match theme color
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-ink-400">
+                  Photo &amp; icon glow intensity
+                </p>
+                <p className="mb-3 text-[11px] text-ink-400">
+                  How strong the profile photo and floating icon glow appears.
+                </p>
+                <OpacitySlider value={photoGlowIntensity} onChange={savePhotoGlowIntensity} />
+              </div>
+
+              <div>
                 <p className="mb-3 text-xs font-medium uppercase tracking-wide text-ink-400">
                   Theme color
                 </p>
@@ -436,6 +587,17 @@ export function SettingsModal({
                     Use hex
                   </button>
                 </div>
+              </div>
+
+              <div>
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-ink-400">
+                  Page glow intensity
+                </p>
+                <p className="mb-3 text-[11px] text-ink-400">
+                  How strong glow effects appear across cards, buttons, and other UI
+                  throughout the site (independent of the photo &amp; icon glow above).
+                </p>
+                <OpacitySlider value={pageGlowIntensity} onChange={savePageGlowIntensity} />
               </div>
 
               <div>

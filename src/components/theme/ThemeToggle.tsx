@@ -23,7 +23,7 @@ export function ThemeToggle() {
       <motion.span
         layout
         transition={{ type: "spring", stiffness: 500, damping: 32 }}
-        className="absolute z-10 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-b from-gold-300 to-gold-500 text-navy-950 shadow-[0_2px_10px_rgba(var(--glow-rgb),0.55)] sm:h-8 sm:w-8"
+        className="absolute z-10 flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-b from-gold-300 to-gold-500 text-navy-950 shadow-[0_2px_10px_rgba(var(--glow-rgb),calc(0.55*var(--page-glow-intensity,1)))] sm:h-8 sm:w-8"
         style={{ left: isDark ? "calc(100% - 1.75rem - 4px)" : "4px" }}
       >
         {isDark ? <Moon size={14} /> : <Sun size={14} />}

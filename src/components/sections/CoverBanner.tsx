@@ -26,7 +26,7 @@ export function CoverBanner({ profile }: { profile: Profile }) {
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 90% 100% at 30% 0%, rgba(var(--glow-rgb),0.22), transparent), radial-gradient(ellipse 70% 100% at 85% 20%, rgba(var(--glow-rgb),0.14), transparent), var(--color-paper-warm)",
+              "radial-gradient(ellipse 90% 100% at 30% 0%, rgba(var(--glow-rgb),calc(0.22 * var(--page-glow-intensity, 1))), transparent), radial-gradient(ellipse 70% 100% at 85% 20%, rgba(var(--glow-rgb),calc(0.14 * var(--page-glow-intensity, 1))), transparent), var(--color-paper-warm)",
           }}
         />
       )}

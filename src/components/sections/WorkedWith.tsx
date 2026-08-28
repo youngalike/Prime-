@@ -71,13 +71,13 @@ function AddClientBrandForm({ onDone }: { onDone: () => void }) {
 
 function BrandTile({ brand, isAdmin }: { brand: ClientBrand; isAdmin: boolean }) {
   const tile = (
-    <div className="group/logo relative flex h-20 w-36 shrink-0 items-center justify-center rounded-xl border border-gold-400/15 bg-surface/60 p-4 transition-all duration-300 hover:border-gold-400/40 hover:shadow-[0_0_20px_rgba(var(--glow-rgb),0.15)]">
+    <div className="group/logo relative flex h-20 w-36 shrink-0 items-center justify-center rounded-xl border border-gold-400/15 bg-surface/60 p-4 transition-all duration-300 hover:border-gold-400/40 hover:shadow-[0_0_20px_rgba(var(--glow-rgb),calc(0.15*var(--page-glow-intensity,1)))]">
       <Image
         src={brand.logo_url}
         alt={brand.name}
         width={100}
         height={40}
-        className="h-full w-full object-contain grayscale transition-all duration-300 group-hover/logo:grayscale-0"
+        className="h-full w-full object-contain"
       />
       {isAdmin && (
         <button

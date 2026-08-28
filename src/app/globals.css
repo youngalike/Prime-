@@ -48,6 +48,7 @@
   /* Fallback so shadow/gradient rgba() calls never break before the
      per-page theme wrapper sets the real --glow-rgb from the chosen accent. */
   --glow-rgb: 242, 201, 76;
+  --page-glow-intensity: 1;
 }
 
 @keyframes glow-pulse {
@@ -84,27 +85,30 @@
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 16px rgba(var(--glow-rgb), 0.7);
+    box-shadow: 0 0 16px rgba(var(--glow-rgb), calc(0.7 * var(--page-glow-intensity, 1)));
   }
   50% {
     transform: scale(1.3);
-    box-shadow: 0 0 24px rgba(var(--glow-rgb), 1);
+    box-shadow: 0 0 24px rgba(var(--glow-rgb), calc(1 * var(--page-glow-intensity, 1)));
   }
 }
 
 /* Two stacked drop-shadows: a tight, near-opaque one that hugs right at the
    PNG's actual alpha-channel edge (reads as a deep, saturated rim of color
    radiating off the object itself), plus a wider, softer one for the
-   ambient diffusion further out. Both layers pulse together. */
+   ambient diffusion further out. Both layers pulse together. Color and
+   intensity are independent of the rest of the page's glow — they read
+   --photo-glow-rgb/--photo-glow-intensity (falling back to the theme glow
+   color when no override is picked) rather than --page-glow-intensity. */
 @keyframes photo-glow-bounce {
   0%,
   100% {
-    filter: drop-shadow(0 0 calc(6px * var(--bounce-intensity, 1)) rgba(var(--glow-rgb), 0.85))
-      drop-shadow(0 0 calc(40px * var(--bounce-intensity, 1)) rgba(var(--glow-rgb), 0.5));
+    filter: drop-shadow(0 0 calc(6px * var(--bounce-intensity, 1)) rgba(var(--photo-glow-rgb, var(--glow-rgb)), calc(0.85 * var(--photo-glow-intensity, 1))))
+      drop-shadow(0 0 calc(40px * var(--bounce-intensity, 1)) rgba(var(--photo-glow-rgb, var(--glow-rgb)), calc(0.5 * var(--photo-glow-intensity, 1))));
   }
   50% {
-    filter: drop-shadow(0 0 calc(10px * var(--bounce-intensity, 1)) rgba(var(--glow-rgb), 1))
-      drop-shadow(0 0 calc(60px * var(--bounce-intensity, 1)) rgba(var(--glow-rgb), 0.75));
+    filter: drop-shadow(0 0 calc(10px * var(--bounce-intensity, 1)) rgba(var(--photo-glow-rgb, var(--glow-rgb)), calc(1 * var(--photo-glow-intensity, 1))))
+      drop-shadow(0 0 calc(60px * var(--bounce-intensity, 1)) rgba(var(--photo-glow-rgb, var(--glow-rgb)), calc(0.75 * var(--photo-glow-intensity, 1))));
   }
 }
 
@@ -151,12 +155,13 @@
 
   .animate-dot-bounce {
     animation: none;
-    box-shadow: 0 0 16px rgba(var(--glow-rgb), 0.7);
+    box-shadow: 0 0 16px rgba(var(--glow-rgb), calc(0.7 * var(--page-glow-intensity, 1)));
   }
 
   .animate-photo-glow {
     animation: none;
-    filter: drop-shadow(0 0 6px rgba(var(--glow-rgb), 0.85)) drop-shadow(0 0 40px rgba(var(--glow-rgb), 0.5));
+    filter: drop-shadow(0 0 6px rgba(var(--photo-glow-rgb, var(--glow-rgb)), calc(0.85 * var(--photo-glow-intensity, 1))))
+      drop-shadow(0 0 40px rgba(var(--photo-glow-rgb, var(--glow-rgb)), calc(0.5 * var(--photo-glow-intensity, 1))));
   }
 }
 
@@ -201,7 +206,7 @@ body {
     background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(var(--glow-rgb), 0.22);
+    border: 1px solid rgba(var(--glow-rgb), calc(0.22 * var(--page-glow-intensity, 1)));
     box-shadow: 0 8px 32px rgba(60, 45, 10, 0.08);
   }
 
@@ -209,37 +214,37 @@ body {
     background: rgba(255, 255, 255, 0.9);
     backdrop-filter: blur(60px) saturate(150%);
     -webkit-backdrop-filter: blur(60px) saturate(150%);
-    border: 1px solid rgba(var(--glow-rgb), 0.22);
+    border: 1px solid rgba(var(--glow-rgb), calc(0.22 * var(--page-glow-intensity, 1)));
     box-shadow: 0 8px 32px rgba(60, 45, 10, 0.14);
   }
 
   :root[data-theme="dark"] .glass-panel {
     background: rgba(19, 19, 19, 0.55);
-    border-color: rgba(var(--glow-rgb), 0.28);
+    border-color: rgba(var(--glow-rgb), calc(0.28 * var(--page-glow-intensity, 1)));
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
   }
 
   :root[data-theme="dark"] .glass-pill {
     background: rgba(10, 10, 10, 0.82);
-    border-color: rgba(var(--glow-rgb), 0.28);
+    border-color: rgba(var(--glow-rgb), calc(0.28 * var(--page-glow-intensity, 1)));
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   }
 
   .glow-gold {
-    box-shadow: 0 0 24px rgba(var(--glow-rgb), 0.28);
+    box-shadow: 0 0 24px rgba(var(--glow-rgb), calc(0.28 * var(--page-glow-intensity, 1)));
   }
 
   .glow-gold-lg {
-    box-shadow: 0 0 60px rgba(var(--glow-rgb), 0.22);
+    box-shadow: 0 0 60px rgba(var(--glow-rgb), calc(0.22 * var(--page-glow-intensity, 1)));
   }
 
   .text-glow {
-    text-shadow: 0 0 30px rgba(var(--glow-rgb), 0.3);
+    text-shadow: 0 0 30px rgba(var(--glow-rgb), calc(0.3 * var(--page-glow-intensity, 1)));
   }
 }
 
 ::selection {
-  background: rgba(var(--glow-rgb), 0.4);
+  background: rgba(var(--glow-rgb), calc(0.4 * var(--page-glow-intensity, 1)));
   color: var(--color-ink-900);
 }
 
@@ -262,9 +267,9 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--color-gold-500);
   border-radius: 999px;
-  box-shadow: 0 0 8px rgba(var(--glow-rgb), 0.6);
+  box-shadow: 0 0 8px rgba(var(--glow-rgb), calc(0.6 * var(--page-glow-intensity, 1)));
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  box-shadow: 0 0 14px rgba(var(--glow-rgb), 0.9);
+  box-shadow: 0 0 14px rgba(var(--glow-rgb), calc(0.9 * var(--page-glow-intensity, 1)));
 }

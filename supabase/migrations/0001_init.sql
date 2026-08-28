@@ -17,6 +17,9 @@ create table if not exists profile (
   photo_size text not null default 'medium' check (photo_size in ('small', 'medium', 'large')),
   floating_icon_size text not null default 'medium' check (floating_icon_size in ('small', 'medium', 'large')),
   bounce_intensity numeric not null default 1 check (bounce_intensity between 0.5 and 2.5),
+  photo_glow_hex text,
+  photo_glow_intensity numeric not null default 1 check (photo_glow_intensity between 0 and 1),
+  page_glow_intensity numeric not null default 1 check (page_glow_intensity between 0 and 1),
   cover_image_url text,
   theme_accent text not null default 'gold'
     check (theme_accent in ('gold', 'rose', 'emerald', 'sapphire', 'violet', 'terracotta')),

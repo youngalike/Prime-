@@ -59,7 +59,7 @@ export function PillNav() {
               <motion.span
                 layoutId="pill-nav-active"
                 transition={{ type: "spring", stiffness: 500, damping: 32 }}
-                className="absolute inset-0 overflow-hidden rounded-full bg-gradient-to-b from-gold-300 to-gold-500 shadow-[0_2px_18px_rgba(var(--glow-rgb),0.55),inset_0_1px_1px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.12)]"
+                className="absolute inset-0 overflow-hidden rounded-full bg-gradient-to-b from-gold-300 to-gold-500 shadow-[0_2px_18px_rgba(var(--glow-rgb),calc(0.55*var(--page-glow-intensity,1))),inset_0_1px_1px_rgba(255,255,255,0.6),inset_0_-2px_4px_rgba(0,0,0,0.12)]"
               >
                 <span
                   aria-hidden
@@ -75,7 +75,7 @@ export function PillNav() {
                 "relative flex h-full w-full items-center justify-center rounded-full transition-colors duration-200",
                 isActive
                   ? "text-navy-950 drop-shadow-[0_1px_1px_rgba(255,255,255,0.4)]"
-                  : "text-ink-700 hover:text-gold-600 hover:drop-shadow-[0_4px_6px_rgba(var(--glow-rgb),0.35)]",
+                  : "text-ink-700 hover:text-gold-600 hover:drop-shadow-[0_4px_6px_rgba(var(--glow-rgb),calc(0.35*var(--page-glow-intensity,1)))]",
               )}
             >
               <Icon size={18} strokeWidth={2} />

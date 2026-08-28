@@ -23,7 +23,7 @@ export function SocialIcon({
       aria-label={label}
       title={label}
       className={cn(
-        "glass-panel flex h-10 w-10 items-center justify-center overflow-hidden rounded-full text-ink-700 transition-all duration-300 hover:text-gold-600 hover:shadow-[0_0_18px_rgba(var(--glow-rgb),0.35)] hover:-translate-y-0.5",
+        "glass-panel flex h-10 w-10 items-center justify-center overflow-hidden rounded-full text-ink-700 transition-all duration-300 hover:text-gold-600 hover:shadow-[0_0_18px_rgba(var(--glow-rgb),calc(0.35*var(--page-glow-intensity,1)))] hover:-translate-y-0.5",
         className,
       )}
     >

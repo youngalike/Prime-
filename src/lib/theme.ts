@@ -195,7 +195,7 @@ export function isValidHex(value: string): boolean {
   return HEX_PATTERN.test(value);
 }
 
-function hexToRgbString(hex: string): string {
+export function hexToRgbString(hex: string): string {
   const clean = hex.replace("#", "");
   const r = parseInt(clean.substring(0, 2), 16);
   const g = parseInt(clean.substring(2, 4), 16);
@@ -206,7 +206,14 @@ function hexToRgbString(hex: string): string {
 export function getThemeStyle(
   profile: Pick<
     Profile,
-    "theme_accent" | "theme_accent_hex" | "theme_font" | "custom_font_url" | "google_font_name"
+    | "theme_accent"
+    | "theme_accent_hex"
+    | "theme_font"
+    | "custom_font_url"
+    | "google_font_name"
+    | "photo_glow_hex"
+    | "photo_glow_intensity"
+    | "page_glow_intensity"
   >,
 ): CSSProperties {
   const colors =
@@ -219,13 +226,25 @@ export function getThemeStyle(
       ? `"${profile.google_font_name}"`
       : getFont(profile.theme_font).headingVar;
 
-  return {
+  const style: Record<string, string> = {
     "--color-gold-300": colors[300],
     "--color-gold-400": colors[400],
     "--color-gold-500": colors[500],
     "--color-gold-600": colors[600],
     "--glow-rgb": hexToRgbString(colors[400]),
+    "--photo-glow-intensity": String(profile.photo_glow_intensity ?? 1),
+    "--page-glow-intensity": String(profile.page_glow_intensity ?? 1),
     "--theme-font-display": fontVar,
     "--theme-font-sans": fontVar,
-  } as CSSProperties;
+  };
+
+  // Only set an explicit photo/icon glow color override when one is picked —
+  // otherwise leave the var unset so the CSS fallback
+  // `var(--photo-glow-rgb, var(--glow-rgb))` naturally inherits the theme's
+  // glow color, with no branching needed anywhere else.
+  if (profile.photo_glow_hex && isValidHex(profile.photo_glow_hex)) {
+    style["--photo-glow-rgb"] = hexToRgbString(profile.photo_glow_hex);
+  }
+
+  return style as CSSProperties;
 }

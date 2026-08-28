@@ -26,19 +26,46 @@ export function SiteShell({ data, forceLoginOpen = false }: { data: SiteData; fo
   const bg = (key: Parameters<typeof resolveSectionBackground>[0]) =>
     resolveSectionBackground(key, data.sectionBackgrounds, data.profile);
 
-  const { theme_accent, theme_accent_hex, theme_font, custom_font_url, google_font_name } = data.profile;
+  const {
+    theme_accent,
+    theme_accent_hex,
+    theme_font,
+    custom_font_url,
+    google_font_name,
+    photo_glow_hex,
+    photo_glow_intensity,
+    page_glow_intensity,
+  } = data.profile;
   useEffect(() => {
     // The theme vars below are also set inline on the wrapper div for
     // SSR/no-flash, but <html> is an ANCESTOR of that div, so it can't see
     // them — anything scoped to <html>/<body> (the real page scrollbar,
-    // via `scrollbar-color`) would otherwise stay on the default accent.
-    // Mirror them onto the root element too.
+    // via `scrollbar-color`, and its glow, via --page-glow-intensity) would
+    // otherwise stay on the default. Mirror them onto the root element too.
     const root = document.documentElement;
-    const style = getThemeStyle({ theme_accent, theme_accent_hex, theme_font, custom_font_url, google_font_name });
+    const style = getThemeStyle({
+      theme_accent,
+      theme_accent_hex,
+      theme_font,
+      custom_font_url,
+      google_font_name,
+      photo_glow_hex,
+      photo_glow_intensity,
+      page_glow_intensity,
+    });
     Object.entries(style).forEach(([key, value]) => {
       if (typeof value === "string") root.style.setProperty(key, value);
     });
-  }, [theme_accent, theme_accent_hex, theme_font, custom_font_url, google_font_name]);
+  }, [
+    theme_accent,
+    theme_accent_hex,
+    theme_font,
+    custom_font_url,
+    google_font_name,
+    photo_glow_hex,
+    photo_glow_intensity,
+    page_glow_intensity,
+  ]);
 
   return (
     <div className="font-sans" style={getThemeStyle(data.profile)}>

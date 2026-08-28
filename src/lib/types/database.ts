@@ -21,6 +21,9 @@ export type Profile = {
   photo_size: PhotoSize;
   floating_icon_size: FloatingIconSize;
   bounce_intensity: number;
+  photo_glow_hex: string | null;
+  photo_glow_intensity: number;
+  page_glow_intensity: number;
   cover_image_url: string | null;
   theme_accent: ThemeAccent;
   theme_accent_hex: string | null;
