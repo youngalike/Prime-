@@ -1,19 +1,9 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
-import { Toaster } from "sonner";
+import Script from "next/script";
+import { fontVariables } from "@/lib/fonts";
+import { ThemeModeProvider } from "@/components/theme/ThemeModeProvider";
+import { ThemedToaster } from "@/components/theme/ThemedToaster";
 import "./globals.css";
-
-const playfair = Playfair_Display({
-  variable: "--font-playfair",
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
 
 export const metadata: Metadata = {
   title: "Alike Kingsley Chukwudi — Graphic Designer & Front-End Developer",
@@ -23,19 +13,20 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable} h-full antialiased`}>
+    <html lang="en" className={`${fontVariables} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full font-sans">
-        {children}
-        <Toaster
-          theme="dark"
-          toastOptions={{
-            style: {
-              background: "rgba(19,41,63,0.9)",
-              border: "1px solid rgba(242,201,76,0.2)",
-              color: "#f5f3ee",
-            },
-          }}
-        />
+        <Script id="theme-init" strategy="beforeInteractive">
+          {`(function(){try{
+  var KEY="theme-preference",p=localStorage.getItem(KEY),m;
+  if(p==="light"||p==="dark"){m=p;}
+  else{var h=new Date().getHours();m=(h>=6&&h<19)?"light":"dark";}
+  document.documentElement.setAttribute("data-theme",m);
+}catch(e){}})();`}
+        </Script>
+        <ThemeModeProvider>
+          {children}
+          <ThemedToaster />
+        </ThemeModeProvider>
       </body>
     </html>
   );

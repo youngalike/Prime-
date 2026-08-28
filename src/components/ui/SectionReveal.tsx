@@ -1,7 +1,4 @@
-"use client";
-
-import { motion } from "framer-motion";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 interface SectionRevealProps {
   children: ReactNode;
@@ -9,16 +6,14 @@ interface SectionRevealProps {
   className?: string;
 }
 
+// A mount-triggered CSS animation, not a scroll-triggered one: Framer
+// Motion's whileInView was unreliable here (content could get stuck at
+// opacity 0 for sections the observer never caught, e.g. after a fast
+// scroll), so this uses a plain animation that always runs once mounted.
 export function SectionReveal({ children, delay = 0, className }: SectionRevealProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 28 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
-      className={className}
-    >
+    <div className={`reveal-up ${className ?? ""}`} style={{ animationDelay: `${delay}s` } as CSSProperties}>
       {children}
-    </motion.div>
+    </div>
   );
 }

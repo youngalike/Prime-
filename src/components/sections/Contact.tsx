@@ -1,39 +1,99 @@
 "use client";
 
-import { Mail, MapPin, Phone } from "lucide-react";
+import Image from "next/image";
+import { Link2, Mail, MapPin, Phone, Plus } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import { updateProfile } from "@/lib/actions/profile";
+import {
+  createSocialLink,
+  deleteSocialLink,
+  reorderSocialLinks,
+  updateSocialLink,
+} from "@/lib/actions/socialLinks";
 import { useEditMode } from "@/components/admin/EditModeProvider";
 import { EditableField } from "@/components/admin/EditableField";
+import { ImageUploader } from "@/components/admin/ImageUploader";
+import { RowControls } from "@/components/admin/RowControls";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { SocialIcon } from "@/components/ui/SocialIcon";
+import { SectionBackdrop } from "@/components/ui/SectionBackdrop";
 import { SectionReveal } from "@/components/ui/SectionReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import type { Profile } from "@/lib/types/database";
+import type { ResolvedBackground } from "@/lib/backgrounds";
+import type { Profile, SocialLink } from "@/lib/types/database";
 
-export function Contact({ profile }: { profile: Profile }) {
-  const { isAdmin } = useEditMode();
+function AddSocialLinkForm({ onSubmit, onCancel }: { onSubmit: (v: { label: string; url: string }) => Promise<void>; onCancel: () => void }) {
+  const [label, setLabel] = useState("");
+  const [url, setUrl] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const socialFields: {
-    key: "social_instagram" | "social_facebook" | "social_twitter" | "social_linkedin";
-    label: string;
-  }[] = [
-    { key: "social_instagram", label: "Instagram URL" },
-    { key: "social_facebook", label: "Facebook URL" },
-    { key: "social_twitter", label: "Twitter / X URL" },
-    { key: "social_linkedin", label: "LinkedIn URL" },
-  ];
-
-  const socials = socialFields
-    .map((f) => ({ platform: f.key.replace("social_", "") as "instagram" | "facebook" | "twitter" | "linkedin", url: profile[f.key] }))
-    .filter((s) => s.url) as { platform: "instagram" | "facebook" | "twitter" | "linkedin"; url: string }[];
+  const field =
+    "w-full rounded-lg border border-gold-400/25 bg-surface/70 px-3 py-2 text-xs text-ink-900 outline-none focus:border-gold-400/60";
 
   return (
-    <section id="contact" className="mx-auto max-w-4xl px-6 py-24 sm:px-10">
-      <SectionReveal>
-        <SectionHeading eyebrow="Let's work together" title="Contact" align="center" />
-      </SectionReveal>
+    <div className="space-y-2">
+      <input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="Label, e.g. TikTok" className={field} />
+      <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://…" className={field} />
+      <div className="flex gap-2">
+        <button
+          disabled={saving || !label || !url}
+          onClick={async () => {
+            setSaving(true);
+            try {
+              await onSubmit({ label, url });
+            } finally {
+              setSaving(false);
+            }
+          }}
+          className="rounded-md bg-gold-400 px-3 py-1.5 text-xs font-medium text-navy-950 disabled:opacity-50"
+        >
+          Add
+        </button>
+        <button onClick={onCancel} className="rounded-md border border-gold-400/25 px-3 py-1.5 text-xs text-ink-700">
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
 
-      <SectionReveal delay={0.1}>
+export function Contact({
+  profile,
+  socialLinks,
+  background,
+}: {
+  profile: Profile;
+  socialLinks: SocialLink[];
+  background: ResolvedBackground;
+}) {
+  const { isAdmin } = useEditMode();
+  const [adding, setAdding] = useState(false);
+
+  const socials = [...socialLinks].sort((a, b) => a.sort_order - b.sort_order);
+
+  async function move(id: string, dir: -1 | 1) {
+    const idx = socials.findIndex((s) => s.id === id);
+    const target = idx + dir;
+    if (target < 0 || target >= socials.length) return;
+    const reordered = [...socials];
+    [reordered[idx], reordered[target]] = [reordered[target], reordered[idx]];
+    try {
+      await reorderSocialLinks(reordered.map((s) => s.id));
+    } catch {
+      toast.error("Couldn't reorder");
+    }
+  }
+
+  return (
+    <section id="contact" className="relative overflow-hidden py-24">
+      <SectionBackdrop background={background} />
+      <div className="relative mx-auto max-w-4xl px-6 sm:px-10">
+        <SectionReveal>
+          <SectionHeading eyebrow="Let's work together" title="Contact" align="center" />
+        </SectionReveal>
+
+        <SectionReveal delay={0.1}>
         <GlassCard className="glow-gold grid gap-8 p-8 sm:grid-cols-2 sm:p-10">
           <div className="space-y-6">
             <div className="flex items-start gap-3">
@@ -42,7 +102,7 @@ export function Contact({ profile }: { profile: Profile }) {
                 value={profile.location ?? ""}
                 onSave={(v) => updateProfile({ location: v })}
                 as="p"
-                className="text-sm text-ivory-300"
+                className="text-sm text-ink-700"
                 placeholder="Add your location"
               />
             </div>
@@ -52,7 +112,7 @@ export function Contact({ profile }: { profile: Profile }) {
                 value={profile.email ?? ""}
                 onSave={(v) => updateProfile({ email: v })}
                 as="p"
-                className="text-sm text-ivory-300"
+                className="text-sm text-ink-700"
                 placeholder="Add your email"
               />
             </div>
@@ -63,7 +123,7 @@ export function Contact({ profile }: { profile: Profile }) {
                   value={profile.phone_primary ?? ""}
                   onSave={(v) => updateProfile({ phone_primary: v })}
                   as="p"
-                  className="text-sm text-ivory-300"
+                  className="text-sm text-ink-700"
                   placeholder="Add a phone number"
                 />
                 {(profile.phone_secondary || isAdmin) && (
@@ -71,7 +131,7 @@ export function Contact({ profile }: { profile: Profile }) {
                     value={profile.phone_secondary ?? ""}
                     onSave={(v) => updateProfile({ phone_secondary: v })}
                     as="p"
-                    className="text-sm text-ivory-300"
+                    className="text-sm text-ink-700"
                     placeholder="Add a second phone number"
                   />
                 )}
@@ -84,31 +144,81 @@ export function Contact({ profile }: { profile: Profile }) {
               <p className="mb-3 text-xs uppercase tracking-[0.3em] text-gold-400">Find me online</p>
               <div className="flex flex-wrap gap-3">
                 {socials.map((s) => (
-                  <SocialIcon key={s.platform} platform={s.platform} href={s.url} />
+                  <SocialIcon key={s.id} href={s.url} iconUrl={s.icon_url} label={s.label} />
                 ))}
-                {profile.email && <SocialIcon platform="email" href={`mailto:${profile.email}`} />}
               </div>
             </div>
 
             {isAdmin && (
-              <div className="space-y-2 border-t border-gold-400/10 pt-4">
-                {socialFields.map((f) => (
-                  <div key={f.key} className="flex items-center gap-2 text-xs">
-                    <span className="w-24 shrink-0 text-ivory-300/60">{f.label}</span>
-                    <EditableField
-                      value={profile[f.key] ?? ""}
-                      onSave={(v) => updateProfile({ [f.key]: v })}
-                      as="span"
-                      className="text-xs text-ivory-300"
-                      placeholder="Not set"
+              <div className="space-y-3 border-t border-gold-400/10 pt-4">
+                {socials.map((s, i) => (
+                  <div key={s.id} className="group/row flex items-center gap-2">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-gold-400/25 bg-surface/70">
+                      {s.icon_url ? (
+                        <Image src={s.icon_url} alt="" width={14} height={14} className="h-3.5 w-3.5 object-contain" />
+                      ) : (
+                        <Link2 size={12} className="text-ink-400" />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      <EditableField
+                        value={s.label}
+                        onSave={(v) => updateSocialLink(s.id, { label: v, url: s.url, icon_url: s.icon_url })}
+                        as="p"
+                        className="text-xs font-medium text-ink-900"
+                      />
+                      <EditableField
+                        value={s.url}
+                        onSave={(v) => updateSocialLink(s.id, { label: s.label, url: v, icon_url: s.icon_url })}
+                        as="p"
+                        className="max-w-[160px] truncate text-[11px] text-ink-400"
+                      />
+                    </div>
+                    <ImageUploader
+                      pathPrefix="social-icons"
+                      label="Icon"
+                      className="shrink-0 [&>button]:px-2 [&>button]:py-1"
+                      onUploaded={([url]) =>
+                        updateSocialLink(s.id, { label: s.label, url: s.url, icon_url: url })
+                      }
+                    />
+                    <RowControls
+                      className="shrink-0 opacity-0 transition-opacity group-hover/row:opacity-100"
+                      onDelete={async () => {
+                        try {
+                          await deleteSocialLink(s.id);
+                        } catch {
+                          toast.error("Couldn't delete");
+                        }
+                      }}
+                      onMoveUp={i > 0 ? () => move(s.id, -1) : undefined}
+                      onMoveDown={i < socials.length - 1 ? () => move(s.id, 1) : undefined}
                     />
                   </div>
                 ))}
+
+                {adding ? (
+                  <AddSocialLinkForm
+                    onSubmit={async (v) => {
+                      await createSocialLink({ ...v, icon_url: null }, socials.length);
+                      setAdding(false);
+                    }}
+                    onCancel={() => setAdding(false)}
+                  />
+                ) : (
+                  <button
+                    onClick={() => setAdding(true)}
+                    className="flex items-center gap-1.5 text-xs text-gold-600 hover:text-gold-500"
+                  >
+                    <Plus size={13} /> Add social link
+                  </button>
+                )}
               </div>
             )}
           </div>
         </GlassCard>
-      </SectionReveal>
+        </SectionReveal>
+      </div>
     </section>
   );
 }

@@ -7,7 +7,9 @@ export type EducationInput = {
   degree: string;
   school: string;
   location: string | null;
-  period: string;
+  start_date: string;
+  end_date: string | null;
+  is_current: boolean;
 };
 
 export async function createEducation(input: EducationInput, sort_order: number) {

@@ -9,6 +9,7 @@ export type SkillInput = {
   category: SkillCategory;
   stars: number | null;
   years_label: string | null;
+  icon_url: string | null;
 };
 
 export async function createSkill(input: SkillInput, sort_order: number) {

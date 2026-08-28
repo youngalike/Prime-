@@ -10,17 +10,44 @@
   --color-gold-300: #f7dd8a;
   --color-gold-400: #f2c94c;
   --color-gold-500: #e0ac2b;
+  --color-gold-600: #b9821f;
 
-  --color-ivory-50: #f5f3ee;
+  --color-ivory-50: #faf7f1;
+  --color-ivory-100: #f3ede0;
   --color-ivory-300: #c9d1d9;
+
+  --color-paper: #ffffff;
+  --color-paper-warm: #f5f5f5;
+  --color-ink-900: #1c2a3a;
+  --color-ink-700: #3c4d5e;
+  --color-ink-400: #6a7583;
+  --color-ink-200: #d8dee3;
+  --color-surface: #ffffff;
 
   --animate-glow-pulse: glow-pulse 4s ease-in-out infinite;
   --animate-float: float 6s ease-in-out infinite;
+  --animate-dot-bounce: dot-bounce 1.6s ease-in-out infinite;
+  --animate-photo-glow: photo-glow-bounce 2.4s ease-in-out infinite;
 }
 
+/* `@theme inline` bakes the RHS var() directly into generated utility CSS at
+   build time (e.g. `.font-sans { font-family: var(--font-inter) }`), so
+   `--font-sans`/`--font-display` themselves never exist as real runtime
+   custom properties and can't be overridden by the theme wrapper below.
+   Route through an extra indirection layer that's declared normally, so it
+   stays a live, runtime-overridable variable. */
 @theme inline {
-  --font-display: var(--font-playfair);
-  --font-sans: var(--font-inter);
+  --font-display: var(--theme-font-display);
+  --font-sans: var(--theme-font-sans);
+}
+
+:root {
+  --theme-font-display: var(--font-space-grotesk);
+  --theme-font-sans: var(--font-inter);
+
+  /* Fallback so shadow/gradient rgba() calls never break before the
+     per-page theme wrapper sets the real --glow-rgb from the chosen accent. */
+  --glow-rgb: 242, 201, 76;
 }
 
 @keyframes glow-pulse {
@@ -39,52 +66,205 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px);
+    transform: translateY(calc(-10px * var(--bounce-intensity, 1)));
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes dot-bounce {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 16px rgba(var(--glow-rgb), 0.7);
+  }
+  50% {
+    transform: scale(1.3);
+    box-shadow: 0 0 24px rgba(var(--glow-rgb), 1);
+  }
+}
+
+/* Two stacked drop-shadows: a tight, near-opaque one that hugs right at the
+   PNG's actual alpha-channel edge (reads as a deep, saturated rim of color
+   radiating off the object itself), plus a wider, softer one for the
+   ambient diffusion further out. Both layers pulse together. */
+@keyframes photo-glow-bounce {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 calc(6px * var(--bounce-intensity, 1)) rgba(var(--glow-rgb), 0.85))
+      drop-shadow(0 0 calc(40px * var(--bounce-intensity, 1)) rgba(var(--glow-rgb), 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 calc(10px * var(--bounce-intensity, 1)) rgba(var(--glow-rgb), 1))
+      drop-shadow(0 0 calc(60px * var(--bounce-intensity, 1)) rgba(var(--glow-rgb), 0.75));
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.marquee-track {
+  animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+
+.marquee-pause-on-hover:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.reveal-up {
+  animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+
+  .reveal-up {
+    animation: none;
+  }
+
+  .animate-dot-bounce {
+    animation: none;
+    box-shadow: 0 0 16px rgba(var(--glow-rgb), 0.7);
+  }
+
+  .animate-photo-glow {
+    animation: none;
+    filter: drop-shadow(0 0 6px rgba(var(--glow-rgb), 0.85)) drop-shadow(0 0 40px rgba(var(--glow-rgb), 0.5));
   }
 }
 
 :root {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
   color-scheme: dark;
+
+  --color-paper: #000000;
+  --color-paper-warm: #0d0d0d;
+
+  --color-ink-900: var(--color-ivory-50);
+  --color-ink-700: var(--color-ivory-100);
+  --color-ink-400: var(--color-ivory-300);
+  --color-ink-200: #4b5563;
+
+  --color-surface: #131313;
+}
+
+html {
+  overflow-x: hidden;
 }
 
 body {
-  background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(242, 201, 76, 0.08), transparent),
-    var(--color-navy-900);
-  color: var(--color-ivory-50);
+  overflow-x: hidden;
+  background: var(--color-paper);
+  color: var(--color-ink-900);
+}
+
+/* The `font-display` utility only sets font-family — headings still need an
+   explicit weight, especially now that every heading font also loads a
+   regular (400) weight for body text, so headings no longer fall back to a
+   heavier loaded weight by accident. */
+.font-display {
+  font-weight: 600;
 }
 
 @layer components {
   .glass-panel {
-    background: rgba(19, 41, 63, 0.45);
+    background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(242, 201, 76, 0.14);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(var(--glow-rgb), 0.22);
+    box-shadow: 0 8px 32px rgba(60, 45, 10, 0.08);
+  }
+
+  .glass-pill {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(60px) saturate(150%);
+    -webkit-backdrop-filter: blur(60px) saturate(150%);
+    border: 1px solid rgba(var(--glow-rgb), 0.22);
+    box-shadow: 0 8px 32px rgba(60, 45, 10, 0.14);
+  }
+
+  :root[data-theme="dark"] .glass-panel {
+    background: rgba(19, 19, 19, 0.55);
+    border-color: rgba(var(--glow-rgb), 0.28);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  }
+
+  :root[data-theme="dark"] .glass-pill {
+    background: rgba(10, 10, 10, 0.82);
+    border-color: rgba(var(--glow-rgb), 0.28);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
   }
 
   .glow-gold {
-    box-shadow: 0 0 24px rgba(242, 201, 76, 0.25);
+    box-shadow: 0 0 24px rgba(var(--glow-rgb), 0.28);
   }
 
   .glow-gold-lg {
-    box-shadow: 0 0 60px rgba(242, 201, 76, 0.2);
+    box-shadow: 0 0 60px rgba(var(--glow-rgb), 0.22);
   }
 
   .text-glow {
-    text-shadow: 0 0 30px rgba(242, 201, 76, 0.35);
-  }
-
-  .grain-bg {
-    background-image: radial-gradient(rgba(245, 243, 238, 0.035) 1px, transparent 1px);
-    background-size: 3px 3px;
+    text-shadow: 0 0 30px rgba(var(--glow-rgb), 0.3);
   }
 }
 
 ::selection {
-  background: rgba(242, 201, 76, 0.35);
-  color: var(--color-ivory-50);
+  background: rgba(var(--glow-rgb), 0.4);
+  color: var(--color-ink-900);
 }
 
 * {
-  scrollbar-color: var(--color-gold-500) var(--color-navy-900);
+  scrollbar-color: var(--color-gold-500) var(--color-paper-warm);
+}
+
+/* `scrollbar-color` alone can't add a glow, so give WebKit browsers
+   (Chrome/Safari/Edge) a styled thumb with the same accent-driven glow used
+   everywhere else on the site. */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-paper-warm);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-gold-500);
+  border-radius: 999px;
+  box-shadow: 0 0 8px rgba(var(--glow-rgb), 0.6);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  box-shadow: 0 0 14px rgba(var(--glow-rgb), 0.9);
 }

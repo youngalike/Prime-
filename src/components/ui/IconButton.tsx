@@ -12,9 +12,9 @@ export function IconButton({ className, tone = "default", children, ...props }: 
       className={cn(
         "flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-200",
         tone === "default" &&
-          "border-gold-400/30 bg-navy-900/80 text-gold-300 hover:bg-gold-400/15 hover:text-gold-300",
+          "border-gold-400/30 bg-surface/90 text-gold-600 hover:bg-gold-400/15 hover:text-gold-600",
         tone === "danger" &&
-          "border-red-400/30 bg-navy-900/80 text-red-300 hover:bg-red-400/15",
+          "border-red-300/50 bg-surface/90 text-red-500 hover:bg-red-400/10",
         className,
       )}
       {...props}

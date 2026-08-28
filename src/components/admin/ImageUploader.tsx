@@ -11,6 +11,7 @@ interface ImageUploaderProps {
   onUploaded: (urls: string[]) => void;
   className?: string;
   label?: string;
+  accept?: string;
 }
 
 export function ImageUploader({
@@ -19,6 +20,7 @@ export function ImageUploader({
   onUploaded,
   className,
   label = "Upload photo",
+  accept = "image/*",
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -63,17 +65,17 @@ export function ImageUploader({
         disabled={uploading}
         onClick={() => inputRef.current?.click()}
         className={cn(
-          "flex items-center gap-2 rounded-lg border border-dashed border-gold-400/30 px-4 py-2.5 text-xs text-gold-300 hover:border-gold-400/60 hover:bg-gold-400/5 disabled:opacity-50",
+          "flex items-center gap-2 rounded-lg border border-dashed border-gold-400/40 px-4 py-2.5 text-xs text-gold-600 hover:border-gold-400/70 hover:bg-gold-400/5 disabled:opacity-50",
         )}
       >
         {uploading ? <Loader2 size={14} className="animate-spin" /> : <ImagePlus size={14} />}
         {uploading ? "Uploading…" : label}
       </button>
-      {error && <p className="mt-1.5 text-xs text-red-300">{error}</p>}
+      {error && <p className="mt-1.5 text-xs text-red-500">{error}</p>}
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept={accept}
         multiple={multiple}
         className="hidden"
         onChange={(e) => handleFiles(e.target.files)}

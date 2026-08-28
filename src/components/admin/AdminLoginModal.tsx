@@ -55,14 +55,14 @@ export function AdminLoginModal() {
             className="glass-panel glow-gold w-full max-w-sm rounded-2xl p-7"
           >
             <div className="mb-5 flex items-center justify-between">
-              <div className="flex items-center gap-2.5 text-gold-300">
+              <div className="flex items-center gap-2.5 text-gold-600">
                 <Lock size={17} />
-                <h2 className="font-display text-lg">Admin access</h2>
+                <h2 className="font-display text-lg text-ink-900">Admin access</h2>
               </div>
               <button
                 onClick={closeLogin}
                 aria-label="Close"
-                className="text-ivory-300 hover:text-gold-400"
+                className="text-ink-400 hover:text-gold-600"
               >
                 <X size={18} />
               </button>
@@ -75,9 +75,9 @@ export function AdminLoginModal() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className="w-full rounded-lg border border-gold-400/25 bg-navy-900/70 px-4 py-2.5 text-sm text-ivory-50 placeholder:text-ivory-300/40 outline-none focus:border-gold-400/60 focus:shadow-[0_0_0_3px_rgba(242,201,76,0.12)]"
+                className="w-full rounded-lg border border-gold-400/25 bg-surface/70 px-4 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 outline-none focus:border-gold-400/60 focus:shadow-[0_0_0_3px_rgba(var(--glow-rgb),0.12)]"
               />
-              {error && <p className="text-xs text-red-300">{error}</p>}
+              {error && <p className="text-xs text-red-500">{error}</p>}
               <button
                 type="submit"
                 disabled={loading || !password}

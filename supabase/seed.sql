@@ -4,8 +4,7 @@
 
 insert into profile (
   id, full_name, title, bio, photo_url, location, email,
-  phone_primary, phone_secondary,
-  social_instagram, social_facebook, social_twitter, social_linkedin
+  phone_primary, phone_secondary
 ) values (
   'singleton',
   'Alike Kingsley Chukwudi',
@@ -15,11 +14,7 @@ insert into profile (
   'Awka, Anambra State, Nigeria',
   'youngalike@icloud.com',
   '+234 816 590 8505',
-  '+234 805 080 2027',
-  null,
-  null,
-  null,
-  'https://www.linkedin.com/in/alike-kingsley-chukwudi-2267a7310/'
+  '+234 805 080 2027'
 )
 on conflict (id) do update set
   full_name = excluded.full_name,
@@ -28,8 +23,10 @@ on conflict (id) do update set
   location = excluded.location,
   email = excluded.email,
   phone_primary = excluded.phone_primary,
-  phone_secondary = excluded.phone_secondary,
-  social_linkedin = excluded.social_linkedin;
+  phone_secondary = excluded.phone_secondary;
+
+insert into social_links (label, url, icon_url, sort_order) values
+  ('LinkedIn', 'https://www.linkedin.com/in/alike-kingsley-chukwudi-2267a7310/', null, 0);
 
 insert into skills (name, category, stars, years_label, sort_order) values
   ('CorelDraw Suite', 'pc_mac', 5, '5+ years', 0),
@@ -48,11 +45,13 @@ insert into skills (name, category, stars, years_label, sort_order) values
   ('Creative Thinking', 'soft', null, null, 4),
   ('Critical Thinking', 'soft', null, null, 5);
 
-insert into experience (title, company, period, bullets, sort_order) values
+insert into experience (title, company, start_date, end_date, is_current, bullets, sort_order) values
   (
     'Graphics Designer',
     'INX Studio',
-    '2019 — Present',
+    '2019-01-01',
+    null,
+    true,
     array[
       'Founded INX Studio while working as a freelancer, designing for clients',
       'Joined freelancing platforms like Upwork and others to find and serve clients',
@@ -63,7 +62,9 @@ insert into experience (title, company, period, bullets, sort_order) values
   (
     'I.T. Specialist',
     'Dataprosys Technologies Limited',
-    '2017 — 2019',
+    '2017-01-01',
+    '2019-01-01',
+    false,
     array[
       'Chief Engineer in charge of printer repairs and servicing',
       'Took part in scheduled development meetings to recommend system modifications and improvements',
@@ -73,19 +74,23 @@ insert into experience (title, company, period, bullets, sort_order) values
     1
   );
 
-insert into education (degree, school, location, period, sort_order) values
+insert into education (degree, school, location, start_date, end_date, is_current, sort_order) values
   (
     'B.Sc. Electronics and Computer Engineering',
     'Nnamdi Azikiwe University, Awka',
     'Anambra, Nigeria',
-    '2019 — Present',
+    '2019-01-01',
+    null,
+    true,
     0
   ),
   (
     'West African Examination Certificate (WAEC)',
     'Okei-ira Grammar School',
     'Oke-ira, Ogba, Lagos, Nigeria',
-    '2014 — 2016',
+    '2014-01-01',
+    '2016-01-01',
+    false,
     1
   );
 

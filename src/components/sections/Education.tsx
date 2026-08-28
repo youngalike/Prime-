@@ -14,8 +14,11 @@ import { useEditMode } from "@/components/admin/EditModeProvider";
 import { RowControls } from "@/components/admin/RowControls";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { TimelineNode } from "@/components/ui/TimelineNode";
+import { SectionBackdrop } from "@/components/ui/SectionBackdrop";
 import { SectionReveal } from "@/components/ui/SectionReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { formatDateRange, toDbDate, toMonthInput } from "@/lib/dateRange";
+import type { ResolvedBackground } from "@/lib/backgrounds";
 import type { Education as EducationRow } from "@/lib/types/database";
 
 function EducationForm({
@@ -30,24 +33,47 @@ function EducationForm({
   const [degree, setDegree] = useState(initial.degree);
   const [school, setSchool] = useState(initial.school);
   const [location, setLocation] = useState(initial.location ?? "");
-  const [period, setPeriod] = useState(initial.period);
+  const [startMonth, setStartMonth] = useState(toMonthInput(initial.start_date));
+  const [endMonth, setEndMonth] = useState(toMonthInput(initial.end_date));
+  const [isCurrent, setIsCurrent] = useState(initial.is_current);
   const [saving, setSaving] = useState(false);
 
-  const field = "w-full rounded-lg border border-gold-400/25 bg-navy-900/70 px-3 py-2 text-sm text-ivory-50 outline-none focus:border-gold-400/60";
+  const field = "w-full rounded-lg border border-gold-400/25 bg-surface/70 px-3 py-2 text-sm text-ink-900 outline-none focus:border-gold-400/60";
 
   return (
     <GlassCard className="space-y-3 p-6">
       <input value={degree} onChange={(e) => setDegree(e.target.value)} placeholder="Degree / certificate" className={field} />
       <input value={school} onChange={(e) => setSchool(e.target.value)} placeholder="School" className={field} />
       <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Location" className={field} />
-      <input value={period} onChange={(e) => setPeriod(e.target.value)} placeholder="Period, e.g. 2019 — Present" className={field} />
+      <div className="flex flex-wrap items-center gap-3">
+        <input type="month" value={startMonth} onChange={(e) => setStartMonth(e.target.value)} className={`${field} w-auto`} />
+        <label className="flex items-center gap-1.5 text-xs text-ink-700">
+          <input
+            type="checkbox"
+            checked={isCurrent}
+            onChange={(e) => setIsCurrent(e.target.checked)}
+            className="accent-gold-500"
+          />
+          Till present
+        </label>
+        {!isCurrent && (
+          <input type="month" value={endMonth} onChange={(e) => setEndMonth(e.target.value)} className={`${field} w-auto`} />
+        )}
+      </div>
       <div className="flex gap-2">
         <button
-          disabled={saving || !degree || !school}
+          disabled={saving || !degree || !school || !startMonth}
           onClick={async () => {
             setSaving(true);
             try {
-              await onSubmit({ degree, school, location: location || null, period });
+              await onSubmit({
+                degree,
+                school,
+                location: location || null,
+                start_date: toDbDate(startMonth)!,
+                end_date: isCurrent ? null : toDbDate(endMonth),
+                is_current: isCurrent,
+              });
             } finally {
               setSaving(false);
             }
@@ -56,7 +82,7 @@ function EducationForm({
         >
           Save
         </button>
-        <button onClick={onCancel} className="rounded-md border border-gold-400/25 px-3 py-1.5 text-xs text-ivory-300">
+        <button onClick={onCancel} className="rounded-md border border-gold-400/25 px-3 py-1.5 text-xs text-ink-700">
           Cancel
         </button>
       </div>
@@ -64,7 +90,13 @@ function EducationForm({
   );
 }
 
-export function Education({ education }: { education: EducationRow[] }) {
+export function Education({
+  education,
+  background,
+}: {
+  education: EducationRow[];
+  background: ResolvedBackground;
+}) {
   const { isAdmin } = useEditMode();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -85,17 +117,26 @@ export function Education({ education }: { education: EducationRow[] }) {
   }
 
   return (
-    <section id="education" className="mx-auto max-w-3xl px-6 py-24 sm:px-10">
-      <SectionReveal>
-        <SectionHeading eyebrow="How I got here" title="Education" />
-      </SectionReveal>
+    <section id="education" className="relative overflow-hidden py-24">
+      <SectionBackdrop background={background} />
+      <div className="relative mx-auto max-w-3xl px-6 sm:px-10">
+        <SectionReveal>
+          <SectionHeading eyebrow="How I got here" title="Education" />
+        </SectionReveal>
 
-      <div>
+        <div>
         {items.map((ed, i) => (
-          <TimelineNode key={ed.id} isLast={i === items.length - 1 && !adding} delay={i * 0.1}>
+          <TimelineNode key={ed.id} isLast={i === items.length - 1 && !adding}>
             {editingId === ed.id ? (
               <EducationForm
-                initial={{ degree: ed.degree, school: ed.school, location: ed.location, period: ed.period }}
+                initial={{
+                  degree: ed.degree,
+                  school: ed.school,
+                  location: ed.location,
+                  start_date: ed.start_date,
+                  end_date: ed.end_date,
+                  is_current: ed.is_current,
+                }}
                 onSubmit={async (v) => {
                   await updateEducation(ed.id, v);
                   setEditingId(null);
@@ -105,10 +146,10 @@ export function Education({ education }: { education: EducationRow[] }) {
             ) : (
               <GlassCard className="group/row flex items-start justify-between gap-3 p-6">
                 <div>
-                  <h3 className="font-display text-lg text-ivory-50">{ed.degree}</h3>
-                  <p className="text-sm text-gold-300">{ed.school}</p>
-                  {ed.location && <p className="text-xs text-ivory-300/70">{ed.location}</p>}
-                  <p className="mt-0.5 text-xs uppercase tracking-wide text-ivory-300/60">{ed.period}</p>
+                  <h3 className="font-display text-lg text-ink-900">{ed.degree}</h3>
+                  <p className="text-sm text-gold-600">{ed.school}</p>
+                  {ed.location && <p className="text-xs text-ink-400">{ed.location}</p>}
+                  <p className="mt-0.5 text-xs uppercase tracking-wide text-ink-400">{formatDateRange(ed)}</p>
                 </div>
                 {isAdmin && (
                   <RowControls
@@ -131,10 +172,10 @@ export function Education({ education }: { education: EducationRow[] }) {
         ))}
 
         {isAdmin && (
-          <TimelineNode isLast delay={items.length * 0.1}>
+          <TimelineNode isLast>
             {adding ? (
               <EducationForm
-                initial={{ degree: "", school: "", location: "", period: "" }}
+                initial={{ degree: "", school: "", location: "", start_date: "", end_date: null, is_current: false }}
                 onSubmit={async (v) => {
                   await createEducation(v, items.length);
                   setAdding(false);
@@ -142,12 +183,13 @@ export function Education({ education }: { education: EducationRow[] }) {
                 onCancel={() => setAdding(false)}
               />
             ) : (
-              <button onClick={() => setAdding(true)} className="flex items-center gap-1.5 text-xs text-gold-300 hover:text-gold-400">
+              <button onClick={() => setAdding(true)} className="flex items-center gap-1.5 text-xs text-gold-600 hover:text-gold-500">
                 <Plus size={13} /> Add education
               </button>
             )}
           </TimelineNode>
         )}
+        </div>
       </div>
     </section>
   );

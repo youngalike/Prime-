@@ -25,15 +25,15 @@ export function Footer({ profile }: { profile: Profile }) {
   }
 
   return (
-    <footer className="border-t border-gold-400/10 px-6 py-10 sm:px-10">
+    <footer className="border-t border-gold-400/10 px-6 pb-28 pt-10 sm:px-10 sm:pb-32">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
         <button
           onClick={onNameClick}
-          className="select-none font-display text-sm text-ivory-300/70 transition-colors hover:text-gold-400"
+          className="select-none font-display text-sm text-ink-700/80 transition-colors hover:text-gold-600"
         >
           &copy; {new Date().getFullYear()} {profile.full_name}
         </button>
-        <p className="text-xs text-ivory-300/50">Designed &amp; built with care.</p>
+        <p className="text-xs text-ink-400">Designed &amp; built at INX Studio.</p>
       </div>
     </footer>
   );

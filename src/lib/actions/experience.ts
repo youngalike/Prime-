@@ -6,7 +6,9 @@ import { requireAdmin } from "./guard";
 export type ExperienceInput = {
   title: string;
   company: string;
-  period: string;
+  start_date: string;
+  end_date: string | null;
+  is_current: boolean;
   bullets: string[];
 };
 

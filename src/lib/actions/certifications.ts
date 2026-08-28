@@ -7,7 +7,17 @@ export type CertificationInput = {
   issuer: string;
   title: string;
   credential_url: string | null;
+  image_url?: string | null;
 };
+
+export async function setCertificationImage(id: string, image_url: string | null) {
+  const supabase = await requireAdmin();
+
+  const { error } = await supabase.from("certifications").update({ image_url }).eq("id", id);
+  if (error) throw error;
+
+  revalidatePath("/");
+}
 
 export async function createCertification(input: CertificationInput, sort_order: number) {
   const supabase = await requireAdmin();

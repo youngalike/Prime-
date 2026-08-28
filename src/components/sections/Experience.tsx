@@ -14,8 +14,11 @@ import { useEditMode } from "@/components/admin/EditModeProvider";
 import { RowControls } from "@/components/admin/RowControls";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { TimelineNode } from "@/components/ui/TimelineNode";
+import { SectionBackdrop } from "@/components/ui/SectionBackdrop";
 import { SectionReveal } from "@/components/ui/SectionReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { formatDateRange, toDbDate, toMonthInput } from "@/lib/dateRange";
+import type { ResolvedBackground } from "@/lib/backgrounds";
 import type { Experience as ExperienceRow } from "@/lib/types/database";
 
 function ExperienceForm({
@@ -29,17 +32,33 @@ function ExperienceForm({
 }) {
   const [title, setTitle] = useState(initial.title);
   const [company, setCompany] = useState(initial.company);
-  const [period, setPeriod] = useState(initial.period);
+  const [startMonth, setStartMonth] = useState(toMonthInput(initial.start_date));
+  const [endMonth, setEndMonth] = useState(toMonthInput(initial.end_date));
+  const [isCurrent, setIsCurrent] = useState(initial.is_current);
   const [bullets, setBullets] = useState(initial.bullets.join("\n"));
   const [saving, setSaving] = useState(false);
 
-  const field = "w-full rounded-lg border border-gold-400/25 bg-navy-900/70 px-3 py-2 text-sm text-ivory-50 outline-none focus:border-gold-400/60";
+  const field = "w-full rounded-lg border border-gold-400/25 bg-surface/70 px-3 py-2 text-sm text-ink-900 outline-none focus:border-gold-400/60";
 
   return (
     <GlassCard className="space-y-3 p-6">
       <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Job title" className={field} />
       <input value={company} onChange={(e) => setCompany(e.target.value)} placeholder="Company" className={field} />
-      <input value={period} onChange={(e) => setPeriod(e.target.value)} placeholder="Period, e.g. 2019 — Present" className={field} />
+      <div className="flex flex-wrap items-center gap-3">
+        <input type="month" value={startMonth} onChange={(e) => setStartMonth(e.target.value)} className={`${field} w-auto`} />
+        <label className="flex items-center gap-1.5 text-xs text-ink-700">
+          <input
+            type="checkbox"
+            checked={isCurrent}
+            onChange={(e) => setIsCurrent(e.target.checked)}
+            className="accent-gold-500"
+          />
+          Till present
+        </label>
+        {!isCurrent && (
+          <input type="month" value={endMonth} onChange={(e) => setEndMonth(e.target.value)} className={`${field} w-auto`} />
+        )}
+      </div>
       <textarea
         value={bullets}
         onChange={(e) => setBullets(e.target.value)}
@@ -49,14 +68,16 @@ function ExperienceForm({
       />
       <div className="flex gap-2">
         <button
-          disabled={saving || !title || !company}
+          disabled={saving || !title || !company || !startMonth}
           onClick={async () => {
             setSaving(true);
             try {
               await onSubmit({
                 title,
                 company,
-                period,
+                start_date: toDbDate(startMonth)!,
+                end_date: isCurrent ? null : toDbDate(endMonth),
+                is_current: isCurrent,
                 bullets: bullets.split("\n").map((b) => b.trim()).filter(Boolean),
               });
             } finally {
@@ -67,7 +88,7 @@ function ExperienceForm({
         >
           Save
         </button>
-        <button onClick={onCancel} className="rounded-md border border-gold-400/25 px-3 py-1.5 text-xs text-ivory-300">
+        <button onClick={onCancel} className="rounded-md border border-gold-400/25 px-3 py-1.5 text-xs text-ink-700">
           Cancel
         </button>
       </div>
@@ -75,7 +96,13 @@ function ExperienceForm({
   );
 }
 
-export function Experience({ experience }: { experience: ExperienceRow[] }) {
+export function Experience({
+  experience,
+  background,
+}: {
+  experience: ExperienceRow[];
+  background: ResolvedBackground;
+}) {
   const { isAdmin } = useEditMode();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -96,17 +123,26 @@ export function Experience({ experience }: { experience: ExperienceRow[] }) {
   }
 
   return (
-    <section id="experience" className="mx-auto max-w-3xl px-6 py-24 sm:px-10">
-      <SectionReveal>
-        <SectionHeading eyebrow="Where I've worked" title="Experience" />
-      </SectionReveal>
+    <section id="experience" className="relative overflow-hidden py-24">
+      <SectionBackdrop background={background} />
+      <div className="relative mx-auto max-w-3xl px-6 sm:px-10">
+        <SectionReveal>
+          <SectionHeading eyebrow="Where I've worked" title="Experience" />
+        </SectionReveal>
 
-      <div>
+        <div>
         {items.map((exp, i) => (
-          <TimelineNode key={exp.id} isLast={i === items.length - 1 && !adding} delay={i * 0.1}>
+          <TimelineNode key={exp.id} isLast={i === items.length - 1 && !adding}>
             {editingId === exp.id ? (
               <ExperienceForm
-                initial={{ title: exp.title, company: exp.company, period: exp.period, bullets: exp.bullets }}
+                initial={{
+                  title: exp.title,
+                  company: exp.company,
+                  start_date: exp.start_date,
+                  end_date: exp.end_date,
+                  is_current: exp.is_current,
+                  bullets: exp.bullets,
+                }}
                 onSubmit={async (v) => {
                   await updateExperience(exp.id, v);
                   setEditingId(null);
@@ -117,9 +153,9 @@ export function Experience({ experience }: { experience: ExperienceRow[] }) {
               <GlassCard className="group/row p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-display text-lg text-ivory-50">{exp.title}</h3>
-                    <p className="text-sm text-gold-300">{exp.company}</p>
-                    <p className="mt-0.5 text-xs uppercase tracking-wide text-ivory-300/60">{exp.period}</p>
+                    <h3 className="font-display text-lg text-ink-900">{exp.title}</h3>
+                    <p className="text-sm text-gold-600">{exp.company}</p>
+                    <p className="mt-0.5 text-xs uppercase tracking-wide text-ink-400">{formatDateRange(exp)}</p>
                   </div>
                   {isAdmin && (
                     <RowControls
@@ -140,7 +176,7 @@ export function Experience({ experience }: { experience: ExperienceRow[] }) {
                 {exp.bullets.length > 0 && (
                   <ul className="mt-4 space-y-2">
                     {exp.bullets.map((b, bi) => (
-                      <li key={bi} className="flex gap-2 text-sm leading-relaxed text-ivory-300">
+                      <li key={bi} className="flex gap-2 text-sm leading-relaxed text-ink-700">
                         <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-gold-400" />
                         {b}
                       </li>
@@ -153,10 +189,10 @@ export function Experience({ experience }: { experience: ExperienceRow[] }) {
         ))}
 
         {isAdmin && (
-          <TimelineNode isLast delay={items.length * 0.1}>
+          <TimelineNode isLast>
             {adding ? (
               <ExperienceForm
-                initial={{ title: "", company: "", period: "", bullets: [] }}
+                initial={{ title: "", company: "", start_date: "", end_date: null, is_current: false, bullets: [] }}
                 onSubmit={async (v) => {
                   await createExperience(v, items.length);
                   setAdding(false);
@@ -164,12 +200,13 @@ export function Experience({ experience }: { experience: ExperienceRow[] }) {
                 onCancel={() => setAdding(false)}
               />
             ) : (
-              <button onClick={() => setAdding(true)} className="flex items-center gap-1.5 text-xs text-gold-300 hover:text-gold-400">
+              <button onClick={() => setAdding(true)} className="flex items-center gap-1.5 text-xs text-gold-600 hover:text-gold-500">
                 <Plus size={13} /> Add role
               </button>
             )}
           </TimelineNode>
         )}
+        </div>
       </div>
     </section>
   );

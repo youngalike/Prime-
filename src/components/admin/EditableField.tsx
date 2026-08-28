@@ -41,7 +41,7 @@ export function EditableField({
             setDraft(value);
             setEditing(true);
           }}
-          className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-gold-400/30 bg-navy-900/80 text-gold-300 opacity-0 transition-opacity group-hover/edit:opacity-100"
+          className="mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-gold-400/30 bg-surface/90 text-gold-600 opacity-0 transition-opacity group-hover/edit:opacity-100"
           aria-label="Edit"
         >
           <PenLine size={11} />
@@ -73,7 +73,7 @@ export function EditableField({
         onChange={(e) => setDraft(e.target.value)}
         rows={multiline ? 5 : undefined}
         className={cn(
-          "w-full rounded-lg border border-gold-400/30 bg-navy-900/80 px-3 py-2 text-sm text-ivory-50 outline-none focus:border-gold-400/60",
+          "w-full rounded-lg border border-gold-400/30 bg-surface/80 px-3 py-2 text-sm text-ink-900 outline-none focus:border-gold-400/60",
           className,
         )}
       />
@@ -88,7 +88,7 @@ export function EditableField({
         <button
           onClick={() => setEditing(false)}
           disabled={saving}
-          className="flex items-center gap-1 rounded-md border border-gold-400/25 px-2.5 py-1 text-xs text-ivory-300"
+          className="flex items-center gap-1 rounded-md border border-gold-400/25 px-2.5 py-1 text-xs text-ink-700"
         >
           <X size={12} /> Cancel
         </button>

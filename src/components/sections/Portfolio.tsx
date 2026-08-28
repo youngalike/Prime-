@@ -7,12 +7,22 @@ import { toast } from "sonner";
 import { createBrand } from "@/lib/actions/portfolio";
 import { useEditMode } from "@/components/admin/EditModeProvider";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { SectionBackdrop } from "@/components/ui/SectionBackdrop";
 import { SectionReveal } from "@/components/ui/SectionReveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { PortfolioBrandModal } from "./PortfolioBrandModal";
-import type { PortfolioBrandWithImages } from "@/lib/types/database";
+import type { ResolvedBackground } from "@/lib/backgrounds";
+import type { PortfolioBrandWithImages, Skill } from "@/lib/types/database";
 
-export function Portfolio({ brands }: { brands: PortfolioBrandWithImages[] }) {
+export function Portfolio({
+  brands,
+  skills,
+  background,
+}: {
+  brands: PortfolioBrandWithImages[];
+  skills: Skill[];
+  background: ResolvedBackground;
+}) {
   const { isAdmin } = useEditMode();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -23,16 +33,18 @@ export function Portfolio({ brands }: { brands: PortfolioBrandWithImages[] }) {
   const selected = items.find((b) => b.id === selectedId) ?? null;
 
   return (
-    <section id="portfolio" className="mx-auto max-w-6xl px-6 py-24 sm:px-10">
-      <SectionReveal>
-        <SectionHeading eyebrow="Selected work" title="Portfolio" />
-      </SectionReveal>
+    <section id="portfolio" className="relative overflow-hidden py-24">
+      <SectionBackdrop background={background} />
+      <div className="relative mx-auto max-w-6xl px-6 sm:px-10">
+        <SectionReveal>
+          <SectionHeading eyebrow="Selected work" title="Portfolio" />
+        </SectionReveal>
 
-      {items.length === 0 && !adding ? (
+        {items.length === 0 && !adding ? (
         <SectionReveal delay={0.1}>
           <GlassCard className="flex flex-col items-center gap-3 px-6 py-16 text-center">
             <Images className="text-gold-400/60" size={30} />
-            <p className="text-sm text-ivory-300">
+            <p className="text-sm text-ink-700">
               {isAdmin
                 ? "No project albums yet — add your first brand to start showcasing your work."
                 : "Project galleries are on their way — check back soon."}
@@ -73,6 +85,34 @@ export function Portfolio({ brands }: { brands: PortfolioBrandWithImages[] }) {
                   <p className="text-xs text-ivory-300/70">
                     {brand.images.length} photo{brand.images.length === 1 ? "" : "s"}
                   </p>
+                  {brand.tools.length > 0 && (
+                    <div className="mt-2 flex items-center gap-1">
+                      {brand.tools
+                        .slice()
+                        .sort((a, b) => a.sort_order - b.sort_order)
+                        .slice(0, 6)
+                        .map((tool) => (
+                          <div
+                            key={tool.id}
+                            title={tool.name ?? undefined}
+                            className="flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded bg-ivory-50/95 p-0.5"
+                          >
+                            <Image
+                              src={tool.icon_url}
+                              alt={tool.name ?? "Tool used"}
+                              width={16}
+                              height={16}
+                              className="h-full w-full object-contain"
+                            />
+                          </div>
+                        ))}
+                      {brand.tools.length > 6 && (
+                        <span className="flex h-5 items-center rounded bg-ivory-50/95 px-1 text-[9px] font-medium text-navy-900">
+                          +{brand.tools.length - 6}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </button>
             </SectionReveal>
@@ -86,7 +126,7 @@ export function Portfolio({ brands }: { brands: PortfolioBrandWithImages[] }) {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   placeholder="Brand / client name"
-                  className="w-full rounded-lg border border-gold-400/25 bg-navy-900/70 px-3 py-2 text-center text-sm text-ivory-50 outline-none focus:border-gold-400/60"
+                  className="w-full rounded-lg border border-gold-400/25 bg-surface/70 px-3 py-2 text-center text-sm text-ink-900 outline-none focus:border-gold-400/60"
                 />
                 <div className="flex gap-2">
                   <button
@@ -110,7 +150,7 @@ export function Portfolio({ brands }: { brands: PortfolioBrandWithImages[] }) {
                   </button>
                   <button
                     onClick={() => setAdding(false)}
-                    className="rounded-md border border-gold-400/25 px-3 py-1.5 text-xs text-ivory-300"
+                    className="rounded-md border border-gold-400/25 px-3 py-1.5 text-xs text-ink-700"
                   >
                     Cancel
                   </button>
@@ -119,16 +159,19 @@ export function Portfolio({ brands }: { brands: PortfolioBrandWithImages[] }) {
             ) : (
               <button
                 onClick={() => setAdding(true)}
-                className="flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gold-400/25 text-gold-300 hover:border-gold-400/50 hover:bg-gold-400/5"
+                className="flex aspect-[4/3] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gold-400/40 text-gold-600 hover:border-gold-400/70 hover:bg-gold-400/5"
               >
                 <Plus size={20} />
                 <span className="text-xs">Add brand</span>
               </button>
             ))}
         </div>
-      )}
+        )}
+      </div>
 
-      {selected && <PortfolioBrandModal brand={selected} onClose={() => setSelectedId(null)} />}
+      {selected && (
+        <PortfolioBrandModal brand={selected} skills={skills} onClose={() => setSelectedId(null)} />
+      )}
     </section>
   );
 }
