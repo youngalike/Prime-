@@ -27,6 +27,7 @@ const EMPTY_PROFILE: Profile = {
   photo_glow_intensity: 1,
   page_glow_intensity: 1,
   cover_image_url: null,
+  cover_image_url_dark: null,
   theme_accent: "gold",
   theme_accent_hex: null,
   theme_font: "modern",

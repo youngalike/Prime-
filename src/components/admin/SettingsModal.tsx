@@ -686,6 +686,80 @@ export function SettingsModal({
 
               <div>
                 <p className="mb-1 text-xs font-medium uppercase tracking-wide text-ink-400">
+                  Cover photo
+                </p>
+                <p className="mb-3 text-[11px] text-ink-400">
+                  The banner image at the top of the page. Dark mode is optional — it falls back to the
+                  light mode cover if not set.
+                </p>
+                <div className="space-y-3">
+                  <div>
+                    <p className="mb-1.5 text-[11px] text-ink-400">Light mode</p>
+                    <div className="flex items-center gap-2">
+                      <ImageUploader
+                        pathPrefix="profile"
+                        label={profile.cover_image_url ? "Change" : "Upload"}
+                        onUploaded={async ([url]) => {
+                          try {
+                            await updateProfile({ cover_image_url: url });
+                          } catch {
+                            toast.error("Couldn't save cover photo");
+                          }
+                        }}
+                      />
+                      {profile.cover_image_url && (
+                        <button
+                          onClick={async () => {
+                            try {
+                              await updateProfile({ cover_image_url: null });
+                            } catch {
+                              toast.error("Couldn't clear cover photo");
+                            }
+                          }}
+                          aria-label="Remove light mode cover photo"
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-red-300/50 text-red-500 hover:bg-red-400/10"
+                        >
+                          <ImageOff size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-1.5 text-[11px] text-ink-400">Dark mode</p>
+                    <div className="flex items-center gap-2">
+                      <ImageUploader
+                        pathPrefix="profile"
+                        label={profile.cover_image_url_dark ? "Change" : "Upload"}
+                        onUploaded={async ([url]) => {
+                          try {
+                            await updateProfile({ cover_image_url_dark: url });
+                          } catch {
+                            toast.error("Couldn't save cover photo");
+                          }
+                        }}
+                      />
+                      {profile.cover_image_url_dark && (
+                        <button
+                          onClick={async () => {
+                            try {
+                              await updateProfile({ cover_image_url_dark: null });
+                            } catch {
+                              toast.error("Couldn't clear cover photo");
+                            }
+                          }}
+                          aria-label="Remove dark mode cover photo"
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-red-300/50 text-red-500 hover:bg-red-400/10"
+                        >
+                          <ImageOff size={13} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-ink-400">
                   General background
                 </p>
                 <p className="mb-3 text-[11px] text-ink-400">

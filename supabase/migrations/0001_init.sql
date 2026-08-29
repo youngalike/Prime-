@@ -21,6 +21,7 @@ create table if not exists profile (
   photo_glow_intensity numeric not null default 1 check (photo_glow_intensity between 0 and 1),
   page_glow_intensity numeric not null default 1 check (page_glow_intensity between 0 and 1),
   cover_image_url text,
+  cover_image_url_dark text,
   theme_accent text not null default 'gold'
     check (theme_accent in ('gold', 'rose', 'emerald', 'sapphire', 'violet', 'terracotta')),
   theme_accent_hex text,

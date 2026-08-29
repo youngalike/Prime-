@@ -1,19 +1,19 @@
 "use client";
 
 import Image from "next/image";
-import { updateProfile } from "@/lib/actions/profile";
-import { ImageUploader } from "@/components/admin/ImageUploader";
-import { useEditMode } from "@/components/admin/EditModeProvider";
+import { useThemeMode } from "@/components/theme/ThemeModeProvider";
 import type { Profile } from "@/lib/types/database";
 
 export function CoverBanner({ profile }: { profile: Profile }) {
-  const { isAdmin } = useEditMode();
+  const { mode } = useThemeMode();
+  const activeCover =
+    mode === "dark" && profile.cover_image_url_dark ? profile.cover_image_url_dark : profile.cover_image_url;
 
   return (
     <div className="relative z-0 h-48 w-full overflow-hidden sm:h-64 lg:h-80">
-      {profile.cover_image_url ? (
+      {activeCover ? (
         <Image
-          src={profile.cover_image_url}
+          src={activeCover}
           alt=""
           fill
           priority
@@ -32,17 +32,6 @@ export function CoverBanner({ profile }: { profile: Profile }) {
       )}
 
       <div className="absolute inset-0 bg-gradient-to-b from-transparent from-70% via-paper/50 via-85% to-paper" />
-
-      {isAdmin && (
-        <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4">
-          <ImageUploader
-            pathPrefix="profile"
-            label={profile.cover_image_url ? "Change cover" : "Add cover photo"}
-            onUploaded={([url]) => updateProfile({ cover_image_url: url })}
-            className="[&>button]:bg-surface/85"
-          />
-        </div>
-      )}
     </div>
   );
 }
