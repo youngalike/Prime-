@@ -11,6 +11,7 @@ const mockData: SiteData = {
     full_name: "Alike Kingsley Chukwudi",
     title: "Graphic Designer / Front-End Developer / IT Specialist",
     specialties: "Brand Strategy, E-commerce Design, WordPress Development",
+    hero_intro: null,
     bio: "I am a Graphic Designer, Front-End Developer and IT Specialist with over 5 years of experience helping businesses promote themselves effectively. I started my graphic design journey 6 years ago, right after high school, teaching myself CorelDraw on YouTube while waiting for university admission. Since then I've worked with two major print companies as a design team lead and as a freelancer creating designs for clients around the world. I'm currently a 400-level student of Electronics and Computer Engineering at Nnamdi Azikiwe University, Awka. My work spans business cards, books, flyers, stickers, wallpapers, catalog layouts, large-scale graphics, web design and banners — using Adobe Photoshop and Illustrator, and CorelDraw above all.",
     photo_url: null,
     photo_size: "medium",

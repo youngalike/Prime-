@@ -530,7 +530,9 @@ export function PortfolioBrandModal({
                           )}
                         </div>
                         {phase.description && (
-                          <p className="mt-2 text-sm leading-relaxed text-ink-700">{phase.description}</p>
+                          <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-ink-700">
+                            {phase.description}
+                          </p>
                         )}
                         <PhaseImages phase={phase} isAdmin={isAdmin} />
                       </GlassCard>

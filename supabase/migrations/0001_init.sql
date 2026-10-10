@@ -12,6 +12,7 @@ create table if not exists profile (
   full_name text not null default '',
   title text not null default '',
   specialties text,
+  hero_intro text,
   bio text not null default '',
   photo_url text,
   photo_size text not null default 'medium' check (photo_size in ('small', 'medium', 'large')),

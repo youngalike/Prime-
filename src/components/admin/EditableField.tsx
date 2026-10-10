@@ -28,14 +28,16 @@ export function EditableField({
   const [draft, setDraft] = useState(value);
   const [saving, setSaving] = useState(false);
 
+  const displayClass = cn(className, multiline && "whitespace-pre-line");
+
   if (!isAdmin) {
-    return <As className={className}>{value || placeholder}</As>;
+    return <As className={displayClass}>{value || placeholder}</As>;
   }
 
   if (!editing) {
     return (
       <span className="group/edit relative inline-flex items-start gap-2">
-        <As className={className}>{value || placeholder}</As>
+        <As className={displayClass}>{value || placeholder}</As>
         <button
           onClick={() => {
             setDraft(value);
@@ -71,7 +73,7 @@ export function EditableField({
         autoFocus
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
-        rows={multiline ? 5 : undefined}
+        rows={multiline ? Math.min(Math.max(5, draft.split("\n").length + Math.floor(draft.length / 80)), 20) : undefined}
         className={cn(
           "w-full rounded-lg border border-gold-400/30 bg-surface/80 px-3 py-2 text-sm text-ink-900 outline-none focus:border-gold-400/60",
           className,

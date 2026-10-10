@@ -16,6 +16,7 @@ export type Profile = {
   full_name: string;
   title: string;
   specialties: string | null;
+  hero_intro: string | null;
   bio: string;
   photo_url: string | null;
   photo_size: PhotoSize;

@@ -111,6 +111,14 @@ const initials = (name: string) =>
     .slice(0, 3)
     .toUpperCase();
 
+// The hero teaser follows the bio's own structure: the first paragraph the
+// owner wrote, trimmed to its first two sentences.
+function heroIntro(bio: string): string {
+  const firstParagraph = bio.split(/\n\s*\n/)[0].trim();
+  const sentences = firstParagraph.match(/[^.!?]+[.!?]+(\s|$)/g);
+  return sentences ? sentences.slice(0, 2).join("").trim() : firstParagraph;
+}
+
 const ICON_POSITIONS = [
   "-top-6 -left-8",
   "-top-8 right-2",
@@ -175,9 +183,16 @@ export function Hero({
             onSave={(v) => updateProfile({ specialties: v || null })}
           />
 
-          <p className="mt-6 max-w-lg text-sm leading-relaxed text-ink-700 sm:text-base">
-            {profile.bio.split(". ").slice(0, 2).join(". ")}.
-          </p>
+          <div className="mt-6 max-w-lg">
+            <EditableField
+              value={profile.hero_intro?.trim() ? profile.hero_intro : heroIntro(profile.bio)}
+              onSave={(v) => updateProfile({ hero_intro: v.trim() || null })}
+              as="p"
+              multiline
+              placeholder="Add a short intro for the top of the page…"
+              className="text-sm leading-relaxed text-ink-700 sm:text-base"
+            />
+          </div>
 
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <GlowButton onClick={() => document.getElementById("portfolio")?.scrollIntoView({ behavior: "smooth" })}>

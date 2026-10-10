@@ -18,6 +18,7 @@ const EMPTY_PROFILE: Profile = {
   full_name: "Your Name",
   title: "Your title",
   specialties: null,
+  hero_intro: null,
   bio: "",
   photo_url: null,
   photo_size: "medium",
